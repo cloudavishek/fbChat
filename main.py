@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # Load the DeepSeek API key from environment variables
-DEEPSEEK_API_KEY = os.getenv("sk-adb3291e9fe84992b6c49c85093b2e52")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 
 @app.route("/webhook", methods=["POST"])
@@ -15,7 +15,7 @@ def webhook():
         return jsonify({"error": "No message provided"}), 400
 
     headers = {
-        "Authorization": f"Bearer {sk-adb3291e9fe84992b6c49c85093b2e52}",
+        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
         "Content-Type": "application/json"
     }
 
