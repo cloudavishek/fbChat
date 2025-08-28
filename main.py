@@ -1,33 +1,39 @@
 from flask import Flask, request, jsonify
-import os
 import requests
+import os
 
 app = Flask(__name__)
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Add your OpenAI key in Railway secrets
+# Load the DeepSeek API key from environment variables
+DEEPSEEK_API_KEY = os.getenv("sk-adb3291e9fe84992b6c49c85093b2e52")
+DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 
-@app.route('/webhook', methods=['POST'])
+@app.route("/webhook", methods=["POST"])
 def webhook():
-    data = request.json
-    user_msg = data.get('message', '')
+    user_message = request.json.get("message")
+    if not user_message:
+        return jsonify({"error": "No message provided"}), 400
 
-    # Call OpenAI API
-    response = requests.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
-        json={
-            "model": "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": user_msg}],
-            "max_tokens": 150
-        }
-    ).json()
+    headers = {
+        "Authorization": f"Bearer {sk-adb3291e9fe84992b6c49c85093b2e52}",
+        "Content-Type": "application/json"
+    }
 
-    bot_reply = response['choices'][0]['message']['content']
-    return jsonify({"reply": bot_reply})
+    data = {
+        "model": "deepseek-chat",
+        "messages": [{"role": "user", "content": user_message}]
+    }
 
-@app.route('/')
+    response = requests.post(DEEPSEEK_API_URL, json=data, headers=headers)
+    if response.status_code == 200:
+        reply = response.json().get("choices")[0].get("message").get("content")
+        return jsonify({"reply": reply})
+    else:
+        return jsonify({"error": "Failed to get response from DeepSeek"}), 500
+
+@app.route("/")
 def home():
-    return "Chatbot is running!"
+    return "DeepSeek AI Chatbot is running!"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
